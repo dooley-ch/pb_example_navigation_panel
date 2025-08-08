@@ -31,7 +31,7 @@ DeclareModule NavigationPanelUI
                               hotImageId.i = #PB_Ignore, disabledImageId.i = #PB_Ignore)    ; Adds an item to the navigation panel
   Declare.b RemoveNavigationItem(id.i)                                                      ; Removes an item from the navigation panel
   Declare.b DisableNavigationItem(id.i, value.b = #True)                                    ; Disable or enable a given item, based on the value passed
-  Declare.b SelectNavigationItem(id.i, executeProc.b = #False)                              ; Programmatically select an item in the navigation panel
+  Declare.b SelectNavigationItem(id.i, flag.b = #True, executeProc.b = #False)              ; Programmatically select an item in the navigation panel
   
   Declare.i GetNavigationPanelId() ; Returns the id of the container panel used to host the navigation panel
   
@@ -408,16 +408,17 @@ Module NavigationPanelUI
   ;
   ; Params
   ; id - The unique id of the item to select
+  ; flag - If #True the item is selected, if not it is deselected
   ; executeProc - flag to indicate if associated procedure should be invoked
   ;
   ; Returns: False if the item is already selected, otherwise false
   ;
-  Procedure.b SelectNavigationItem(id.i, executeProc.b = #False)
-    Shared items(), currentItemId, configInfo
+  Procedure.b SelectNavigationItem(id.i, flag.b = #True, executeProc.b = #False)
+    Shared items(), currentItemId, configInfo, hNavPanel
     Protected.i hCurrentItemId, hCurrentIconId, hCurrentLabelId
     
-    If currentItemId = id
-      ProcedureReturn #False
+    If (currentItemId = id) And flag
+      ProcedureReturn #True
     EndIf
     
     ; Reset the current item
@@ -430,35 +431,45 @@ Module NavigationPanelUI
           SetGadgetState(\hIcon, \image)
           
           ResizeGadget(\itemId, #PB_Ignore, #PB_Ignore, #PB_Ignore, #PB_Ignore)
+          SetActiveGadget(hNavPanel)
           Break
         EndIf
       EndWith
     Next
+    currentItemId = 0
     
     ; Select the new item
-    ResetList(items())
-    ForEach items()
-      With items()
-        If \id  = id
-          SetGadgetColor(\itemId, #PB_Gadget_BackColor, configInfo\ItemSelectedBackgroundColor)
-          SetGadgetColor(\hLabel, #PB_Gadget_FrontColor, configInfo\ItemSelectedTextColor)
-          SetGadgetState(\hIcon, \hotImage)
-          
-          ResizeGadget(\itemId, #PB_Ignore, #PB_Ignore, #PB_Ignore, #PB_Ignore)
-          SetActiveGadget(\itemId)
-          
-          Break
-        EndIf
-      EndWith
-    Next
-    
-    currentItemId = id
+    If flag
+      ResetList(items())
+      ForEach items()
+        With items()
+          If \id  = id
+            SetGadgetColor(\itemId, #PB_Gadget_BackColor, configInfo\ItemSelectedBackgroundColor)
+            SetGadgetColor(\hLabel, #PB_Gadget_FrontColor, configInfo\ItemSelectedTextColor)
+            SetGadgetState(\hIcon, \hotImage)
+            
+            ResizeGadget(\itemId, #PB_Ignore, #PB_Ignore, #PB_Ignore, #PB_Ignore)
+            SetActiveGadget(\itemId)
+            
+            If executeProc
+              \callback()
+            EndIf
+            
+            Break
+          EndIf
+        EndWith
+      Next
+      
+      currentItemId = id
+    EndIf
+  
     ProcedureReturn #True
   EndProcedure
 EndModule
 ; IDE Options = PureBasic 6.21 - C Backend (MacOS X - arm64)
 ; ExecutableFormat = Console
-; CursorPosition = 55
+; CursorPosition = 416
+; FirstLine = 401
 ; Folding = ---
 ; EnableXP
 ; DPIAware

@@ -8,89 +8,159 @@
 ;║     History:
 ;║     06-08-2025 : Initial version
 ;╚═════════════════════════════════════════════════════════════════════════════════════════════════
+EnableExplicit
+
+#App_Title$ =  "Custom Gadget Demo"
+
+#Caption_EnableAppStore = "Enable App Store"
+#Caption_DisableAppStore = "Disable App Store"
+#Caption_RemoveGoogle = "Remove Google"
+#Caption_AddGoogle = "Add Google"
+#Caption_SelectBing = "Select Bing"
+#Caption_DeselectBing = "Deselect Bing"
+#Caption_AddTwitter = "Add Twitter"
+#Caption_RemoveTwitter = "Remove Twitter"
+
+Enumeration 1000
+  #Command_Run_AppStore
+  #Command_Run_Bing
+  #Command_Run_Google
+  #Command_Run_Twitter
+EndEnumeration
 
 XIncludeFile "navigation_panel.pbi"
-
-EnableExplicit
 
 UseModule NavigationPanelUI
 
 UsePNGImageDecoder()
 
-Define hMainWindow.i, hAppStoreButton
+Define.i hMainWindow, hStatusBar, hAppStoreButton, hGoogleButton, hBingButton, hTwitterButton
 Define.i hAppStoreIcon, hBingIcon, hGoogleIcon, hTwitterIcon
 Define.i hAppStoreHotIcon, hBingHotIcon, hGoogleHotIcon, hTwitterHotIcon
 Define.i hAppStoreDisabledIcon, hBingDisabledIcon, hGoogleDisabledIcon, hTwitterDisabledIcon
 
 ;-------- Support Routines --------
 
+; Invoked when the corresponding item is clicked on the navigation panel
+;
+Procedure OnAppStoreClicked()
+  Shared hMainWindow
+  MessageRequester(#App_Title$, "AppStore procedure invoked", #PB_MessageRequester_Info | #PB_MessageRequester_Ok, WindowID(hMainWindow))
+EndProcedure
+
+; Invoked when the corresponding item is clicked on the navigation panel
+;
+Procedure OnBingClicked()
+  Shared hMainWindow
+  MessageRequester(#App_Title$, "Bing procedure invoked", #PB_MessageRequester_Info | #PB_MessageRequester_Ok, WindowID(hMainWindow))
+EndProcedure
+
+; Invoked when the corresponding item is clicked on the navigation panel
+;
+Procedure OnGoogleClicked()
+  Shared hMainWindow
+  MessageRequester(#App_Title$, "Google procedure invoked", #PB_MessageRequester_Info | #PB_MessageRequester_Ok, WindowID(hMainWindow))
+EndProcedure
+
+; Invoked when the corresponding item is clicked on the navigation panel
+;
+Procedure OnTwitterClicked()
+  Shared hMainWindow
+  MessageRequester(#App_Title$, "Twitter procedure invoked", #PB_MessageRequester_Info | #PB_MessageRequester_Ok, WindowID(hMainWindow))
+EndProcedure
+
+; Handles the user event of resizing main window
+;
 Procedure OnResizeMainWindow()
   #NAV_PANEL_WIDTH = 200
   
-  Shared hMainWindow
-  Protected.i winHeight
+  Shared hMainWindow, hStatusBar
+  Protected.i winHeight, barHeight
   
   winHeight = WindowHeight(hMainWindow, #PB_Window_InnerCoordinate)
+  barHeight = StatusBarHeight(hStatusBar)
   
-  ResizeGadget(GetNavigationPanelId(), 0, 0, #NAV_PANEL_WIDTH, winHeight)
+  ResizeGadget(GetNavigationPanelId(), 0, 0, #NAV_PANEL_WIDTH, (winHeight - barHeight))
 EndProcedure
 
+; Invoked when the user clicks on the AppStore button
+;
 Procedure OnButtonAppStoreClicked()
   Shared hAppStoreButton
   Static disabled.b
   
   If Not disabled
-    DisableNavigationItem(1, #True)
-    SetGadgetText(hAppStoreButton, "Enable App Store")
+    DisableNavigationItem(#Command_Run_AppStore, #True)
+    SetGadgetText(hAppStoreButton, #Caption_EnableAppStore)
     disabled = #True
   Else
-    DisableNavigationItem(1, #False)
-    SetGadgetText(hAppStoreButton, "Disable App Store")
+    DisableNavigationItem(#Command_Run_AppStore, #False)
+    SetGadgetText(hAppStoreButton, #Caption_DisableAppStore)
     disabled = #False
   EndIf
-  
 EndProcedure
 
-Procedure OnButtonBingClicked()
-  SelectNavigationItem(2)
-EndProcedure
-
-Procedure OnTwitterClicked()
-  Debug "Twitter clicked"
-EndProcedure
-
-Procedure OnButtonTwitterClicked()
-  Shared hTwitterIcon, hTwitterHotIcon, hTwitterDisabledIcon
-  
-  AddNavigationItem(4, "Twitter", ImageID(hTwitterIcon), @OnTwitterClicked(), ImageID(hTwitterHotIcon), ImageID(hTwitterDisabledIcon))
-EndProcedure
-
+; Invoked when the user clicks on the Google button
+;
 Procedure OnButtonGoogleClicked()
-  RemoveNavigationItem(3)
+  Shared hGoogleButton, hGoogleIcon, hGoogleHotIcon, hGoogleDisabledIcon
+  Static removed.b
+  
+  If removed
+    AddNavigationItem(#Command_Run_Google, "Google", ImageID(hGoogleIcon), @OnGoogleClicked(), ImageID(hGoogleHotIcon), ImageID(hGoogleDisabledIcon))
+    SetGadgetText(hGoogleButton, #Caption_RemoveGoogle)
+    removed = #False
+  Else
+    RemoveNavigationItem(#Command_Run_Google)
+    SetGadgetText(hGoogleButton, #Caption_AddGoogle)
+    removed = #True
+  EndIf
 EndProcedure
 
-Procedure OnAppStoreClicked()
-  Debug "App Store clicked"
+; Invoked when the user clicks on the Bing button
+;
+Procedure OnButtonBingClicked()
+  Shared hBingButton
+  Static selected.b
+  
+  If selected
+    SelectNavigationItem(#Command_Run_Bing, #False)
+    SetGadgetText(hBingButton, #Caption_SelectBing)
+    selected = #False
+  Else
+    SelectNavigationItem(#Command_Run_Bing)
+    SetGadgetText(hBingButton, #Caption_DeselectBing)
+    selected = #True
+  EndIf      
 EndProcedure
 
-Procedure OnBingClicked()
-  Debug "Bing clicked"
+; Invoked when the user clicks on the Twitter button
+;
+Procedure OnButtonTwitterClicked()
+  Shared hTwitterButton, hTwitterIcon, hTwitterHotIcon, hTwitterDisabledIcon
+  Static added.b
+  
+  If added
+    RemoveNavigationItem(#Command_Run_Twitter)
+    SetGadgetText(hTwitterButton, #Caption_AddTwitter)
+    added = #False    
+  Else
+    AddNavigationItem(#Command_Run_Twitter, "Twitter", ImageID(hTwitterIcon), @OnTwitterClicked(), ImageID(hTwitterHotIcon), ImageID(hTwitterDisabledIcon))
+    SetGadgetText(hTwitterButton, #Caption_RemoveTwitter)
+    added = #True
+  EndIf
 EndProcedure
-
-Procedure OnGoogleClicked()
-  Debug "Google clicked"
-EndProcedure
-
   
 ;-------- Main Window --------
-#MainWindow_Max_Width = 1500
-#MainWindow_Max_Height = 800
-#MainWindow_Min_Width = 900
-#MainWindow_Min_Height = 600
+#MainWindow_Max_Width = 1000
+#MainWindow_Max_Height = 700
+#MainWindow_Min_Width = 600
+#MainWindow_Min_Height = 400
 
 #MainWindowFlags = #PB_Window_SystemMenu | #PB_Window_MinimizeGadget | #PB_Window_MaximizeGadget | #PB_Window_SizeGadget | #PB_Window_TitleBar | #PB_Window_ScreenCentered
 
-hMainWindow = OpenWindow(#PB_Any, #PB_Ignore, #PB_Ignore, #MainWindow_Min_Width, #MainWindow_Min_Height, "Custom Gadget Demo", #MainWindowFlags)
+hMainWindow = OpenWindow(#PB_Any, #PB_Ignore, #PB_Ignore, #MainWindow_Min_Width, #MainWindow_Min_Height, #App_Title$, #MainWindowFlags)
+
 If IsWindow(hMainWindow)
   Define cfg.NavigationPanelConfigInfo, event.i, exitMainLoop.b = #False
   Define.i hButton
@@ -112,16 +182,18 @@ If IsWindow(hMainWindow)
   
   WindowBounds(hMainWindow, #MainWindow_Min_Width, #MainWindow_Min_Height, #MainWindow_Max_Width, #MainWindow_Max_Height)
   
-  hButton = ButtonGadget(#PB_Any, 250, 10, 150, 25, "Select Bing")
-  BindGadgetEvent(hButton, @OnButtonBingClicked(), #PB_All)
+  hStatusBar = CreateStatusBar(#PB_Any, WindowID(hMainWindow))
   
-  hButton = ButtonGadget(#PB_Any, 250, 35, 150, 25, "Add Twitter")
-  BindGadgetEvent(hButton, @OnButtonTwitterClicked(), #PB_All)
+  hBingButton = ButtonGadget(#PB_Any, 250, 10, 150, 25, #Caption_SelectBing)
+  BindGadgetEvent(hBingButton, @OnButtonBingClicked(), #PB_All)
   
-  hButton = ButtonGadget(#PB_Any, 250, 60, 150, 25, "Remove Google")
-  BindGadgetEvent(hButton, @OnButtonGoogleClicked(), #PB_All)
+  hTwitterButton = ButtonGadget(#PB_Any, 250, 35, 150, 25, #Caption_AddTwitter)
+  BindGadgetEvent(hTwitterButton, @OnButtonTwitterClicked(), #PB_All)
   
-  hAppStoreButton = ButtonGadget(#PB_Any, 250, 85, 150, 25, "Disable App Store")
+  hGoogleButton = ButtonGadget(#PB_Any, 250, 60, 150, 25, #Caption_RemoveGoogle)
+  BindGadgetEvent(hGoogleButton, @OnButtonGoogleClicked(), #PB_All)
+  
+  hAppStoreButton = ButtonGadget(#PB_Any, 250, 85, 150, 25, #Caption_DisableAppStore)
   BindGadgetEvent(hAppStoreButton, @OnButtonAppStoreClicked(), #PB_All)
   
   With cfg
@@ -132,10 +204,11 @@ If IsWindow(hMainWindow)
     \ItemSelectedTextColor = #White
   EndWith
   
-  AddNavigationItem(1, "App Store", ImageID(hAppStoreIcon), @OnAppStoreClicked(), ImageID(hAppStoreHotIcon), ImageID(hAppStoreDisabledIcon))
   SetNavigationPanelConfig(@cfg)
-  AddNavigationItem(2, "Bing", ImageID(hBingIcon), @OnBingClicked(), ImageID(hBingHotIcon), ImageID(hBingDisabledIcon))
-  AddNavigationItem(3, "Google", ImageID(hGoogleIcon), @OnGoogleClicked(), ImageID(hGoogleHotIcon), ImageID(hGoogleDisabledIcon))
+  
+  AddNavigationItem(#Command_Run_AppStore, "App Store", ImageID(hAppStoreIcon), @OnAppStoreClicked(), ImageID(hAppStoreHotIcon), ImageID(hAppStoreDisabledIcon))
+  AddNavigationItem(#Command_Run_Bing, "Bing", ImageID(hBingIcon), @OnBingClicked(), ImageID(hBingHotIcon), ImageID(hBingDisabledIcon))
+  AddNavigationItem(#Command_Run_Google, "Google", ImageID(hGoogleIcon), @OnGoogleClicked(), ImageID(hGoogleHotIcon), ImageID(hGoogleDisabledIcon))
   
   CreateNavigationPanel(hMainWindow)
   OnResizeMainWindow()
@@ -195,11 +268,10 @@ DataSection
   TwitterDisabledIcon:
   IncludeBinary #PB_Compiler_FilePath + "images/disabled/twitter@48px.png"    
 EndDataSection
-
 ; IDE Options = PureBasic 6.21 - C Backend (MacOS X - arm64)
 ; ExecutableFormat = Console
-; CursorPosition = 52
-; FirstLine = 35
+; CursorPosition = 23
+; FirstLine = 144
 ; Folding = --
 ; EnableXP
 ; DPIAware

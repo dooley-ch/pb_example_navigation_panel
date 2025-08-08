@@ -7,16 +7,16 @@
   <section name="data">
     <explorer view="" pattern="0"/>
     <log show="1"/>
-    <lastopen date="2025-08-07 21:59" user="jdooley" host="Jamess-iMac.local"/>
+    <lastopen date="2025-08-08 13:19" user="jdooley" host="Jamess-iMac.local"/>
   </section>
   <section name="files">
     <file name="custom-gadget.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="1" sortindex="1" panelstate=""/>
-      <fingerprint md5="e0abc93d9cba126f92e63b368ad76b34"/>
+      <fingerprint md5="d2ee02edc9023764fecc2fbe166db4af"/>
     </file>
     <file name="navigation_panel.pbi">
       <config load="0" scan="1" panel="1" warn="1" lastopen="1" sortindex="2" panelstate=""/>
-      <fingerprint md5="b562527d2e2934d57635dd2baf077fec"/>
+      <fingerprint md5="f0ccae40085d49c6e0700ba0aa71bde6"/>
     </file>
   </section>
   <section name="targets">
