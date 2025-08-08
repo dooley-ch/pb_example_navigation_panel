@@ -3,3 +3,5 @@
 ![Splash](splash.jpg)
 
 ## Example
+
+![Example](example-screen.jpg)
